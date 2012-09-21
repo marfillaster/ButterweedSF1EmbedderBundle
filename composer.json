@@ -1,0 +1,28 @@
+{
+    "name": "butterweed/sf1-embedder-bundle",
+    "type": "symfony-bundle",
+    "description": "symfony 1.x Embedder Bundle",
+    "keywords": ["symfony"],
+    "homepage": "https://github.com/marfillaster",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ken Marfilla",
+            "homepage": "https://github.com/marfillaster"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.3.3",
+        "symfony/framework-bundle": "2.1.*"
+    },
+    "autoload": {
+        "psr-0": { "Butterweed\\SF1EmbedderBundle": "" }
+    },
+    "target-dir": "Butterweed/SF1EmbedderBundle",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
