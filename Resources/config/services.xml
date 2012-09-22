@@ -6,6 +6,7 @@
 
     <parameters>
         <parameter key="butterweed_sf1_embedder.router_listener.class">Butterweed\SF1EmbedderBundle\EventListener\LegacyFallbackAwareRouterListener</parameter>
+        <parameter key="butterweed_sf1_embedder.session_subscriber.class">Butterweed\SF1EmbedderBundle\Event\SessionSubscriber</parameter>
     </parameters>
 
     <services>
@@ -15,6 +16,10 @@
             <call method="setContainer"><argument type="service" id="service_container"/></call>
             <tag name="kernel.event_subscriber" />
             <tag name="monolog.logger" channel="request" />
+        </service>
+        <service id="butterweed_sf1_embedder.session_subscriber"
+            class="%butterweed_sf1_embedder.session_subscriber.class%">
+            <call method="setContainer"><argument type="service" id="service_container"/></call>
         </service>
     </services>
 

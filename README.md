@@ -13,7 +13,7 @@ In order for this to work, a symfony plugin must be installed in the legacy app.
 
 * Supports multiple applications from multiple projects (provided they are all accessible locally on disk).
 * Automatically matches debug and env settings.
-* The session is shared but do note that both Symfony2 and symfony uses namespace to store data.
+* Auto signin of sfuser and even supports user switching.
 * All symfony exception will be handled by Symfony2.
 * Both symfony and Symfony2 debug toolbar shows!
 
@@ -35,6 +35,18 @@ composer.json and add the bundle in your AppKernel.php
                 app: frontend
                 path: "%kernel.root_dir%/../legacy"
 
+## Auto signin of sfGuardUser
+
+Fos user and custom implementations are supported. Automatic signin happens
+when `GuardUserInterface` is implemented on the User model. `security_context` service is required.
+
+    interface GuardUserInterface
+    {
+        public function getGuardUsername();
+
+        public function equalsGuard(\sfGuardSecurityUser $user);
+    }
+
 ## Making symfony embed aware
 
 The objective of this bundle is to not touch the legacy app as much as possible
@@ -50,8 +62,6 @@ To install plugin, copy or better symlink `butterweedEmbeddedAwarePlugin` locate
         class: EmbeddedAwareRenderingFilter
 
     # apps/frontend/config/factories.yml
-    storage:
-        class: EmbeddedAwareSession
     controller:
         class: EmbeddedAwareFrontWebController
 

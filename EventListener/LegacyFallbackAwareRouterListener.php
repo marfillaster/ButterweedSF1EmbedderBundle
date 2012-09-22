@@ -7,6 +7,7 @@ use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Butterweed\SF1EmbedderBundle\Event\ContextEvent;
 
 class LegacyFallbackAwareRouterListener extends BaseRouterListener implements ContainerAwareInterface
 {
@@ -32,7 +33,7 @@ class LegacyFallbackAwareRouterListener extends BaseRouterListener implements Co
             foreach ($this->embbeds as $prefix => $conf) {
                 if (0 === strpos($request->getPathInfo(), $prefix)) {
                     try {
-                        $response = $this->serveEmbbed($conf['app'], $conf['path']);
+                        $response = $this->serveEmbbed($event, $conf['app'], $conf['path']);
                     } catch (\sfError404Exception $f) {
                         throw $e;
                     }
@@ -56,16 +57,11 @@ class LegacyFallbackAwareRouterListener extends BaseRouterListener implements Co
         }
     }
 
-    protected function serveEmbbed($app, $root)
+    protected function serveEmbbed(GetResponseEvent $event, $app, $root)
     {
         $container = $this->container;
         $kernel = $container->get('kernel');
         $obLevel = $container->get('request')->headers->get('X-Php-Ob-Level') ?: 0;
-
-        $session = $container->get('session');
-        if (!$session->isStarted()) {
-            $session->start();
-        }
 
         define('SF2_EMBEDDED', true);
         $session_id = $container->get('session')->getId();
@@ -73,17 +69,12 @@ class LegacyFallbackAwareRouterListener extends BaseRouterListener implements Co
         require_once rtrim($root, '/ ').'/config/ProjectConfiguration.class.php';
 
         $configuration = \ProjectConfiguration::getApplicationConfiguration($app, $kernel->getEnvironment(), $kernel->isDebug());
+        $event->getDispatcher()->dispatch('butterweed_sf1_embedder.pre_context');
         $context = \sfContext::createInstance($configuration);
+        $eventContext = new ContextEvent($context);
+        $event->getDispatcher()->dispatch('butterweed_sf1_embedder.pre_dispatch', $eventContext);
         $context->getController()->dispatch();
-
-        // this is a bit flaky, may only be compatible with sfSessionStorage
-        // persist user attr to session
-        $context->getUser()->shutdown();
-
-        // not needed when authentication is provided by sf2 which must also update tokens in sfGuardUserPlugin session namespace
-        if ($session->isStarted() && ($session_id != session_id())) {
-            $session->migrate();
-        }
+        $event->getDispatcher()->dispatch('butterweed_sf1_embedder.post_dispatch', $eventContext);
 
         // especially needed for response listeners such as debug bar
         $response = $context->getResponse();

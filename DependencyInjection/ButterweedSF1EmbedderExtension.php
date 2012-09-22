@@ -25,6 +25,7 @@ class ButterweedSF1EmbedderExtension extends Extension
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
-        $container->getDefinition('butterweed_sf1_embedder.router_listener')->addMethodCall('setEmbbeds', array($config['embbeds']));
+        $container->getDefinition('butterweed_sf1_embedder.router_listener')
+            ->addMethodCall('setEmbbeds', array($config['embbeds']));
     }
 }
