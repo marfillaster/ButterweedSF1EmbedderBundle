@@ -7,11 +7,21 @@ use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Butterweed\SF1EmbedderBundle\Event\ContextEvent;
+use Butterweed\SF1EmbedderBundle\Embedded;
+use Symfony\Component\Routing\Matcher\UrlMatcherInterface;
+use Symfony\Component\HttpKernel\Log\LoggerInterface;
+use Symfony\Component\Routing\RequestContext;
 
 class LegacyFallbackAwareRouterListener extends BaseRouterListener implements ContainerAwareInterface
 {
     protected $container, $embbeds;
+    private $logger;
+
+    public function __construct($matcher, RequestContext $context = null, LoggerInterface $logger = null)
+    {
+        parent::__construct($matcher, $context, $logger);
+        $this->logger = $logger;
+    }
 
     public function setContainer(ContainerInterface $container = null)
     {
@@ -29,25 +39,37 @@ class LegacyFallbackAwareRouterListener extends BaseRouterListener implements Co
             parent::onKernelRequest($event);
         } catch (NotFoundHttpException $e) {
             $request = $event->getRequest();
-
             foreach ($this->embbeds as $prefix => $conf) {
                 if (0 === strpos($request->getPathInfo(), $prefix)) {
-                    try {
-                        $response = $this->serveEmbbed($event, $conf['app'], $conf['path']);
-                    } catch (\sfError404Exception $f) {
-                        throw $e;
-                    }
-                    // must also fire events in sfException::outputStackTrace
-
-                    if ($response->isNotFound()) {
-                        throw $e;
-                    }
-
                     if (null !== $this->logger) {
                         $this->logger->info(sprintf('Matched embedded symfony (%s)', $conf['app']));
                     }
 
-                    $event->setResponse($response);
+                    try {
+                        $embedded = new Embedded($this->container);
+                        $obLevel = $this->container->get('request')->headers->get('X-Php-Ob-Level') ?: 0;
+                        $sfResponse = $embedded->serve($conf['app'], $conf['path']);
+
+                        if ((ob_get_level() > $obLevel) && !$sfResponse->getContent()) {
+                            $sfResponse = new \Symfony\Component\HttpFoundation\StreamedResponse(function () {
+                                    echo ob_get_flush();
+                                },
+                                $response->getStatusCode(), $sfResponse->getHttpHeaders()
+                            );
+                        } else {
+                            $response = new \Symfony\Component\HttpFoundation\Response(
+                                $sfResponse->getContent(),
+                                $sfResponse->getStatusCode(), $sfResponse->getHttpHeaders()
+                            );
+                        }
+
+                        $event->setResponse($response);
+                    } catch (\sfError404Exception $f) {
+                        $e->setMessage($f->getMessage());
+
+                        throw $e;
+                    }
+                    // unhandled sfExceptions will be caught by Symfony2 exception handler
 
                     return;
                 }
@@ -55,44 +77,5 @@ class LegacyFallbackAwareRouterListener extends BaseRouterListener implements Co
 
             throw $e;
         }
-    }
-
-    protected function serveEmbbed(GetResponseEvent $event, $app, $root)
-    {
-        $container = $this->container;
-        $kernel = $container->get('kernel');
-        $obLevel = $container->get('request')->headers->get('X-Php-Ob-Level') ?: 0;
-
-        define('SF2_EMBEDDED', true);
-        $session_id = $container->get('session')->getId();
-
-        require_once rtrim($root, '/ ').'/config/ProjectConfiguration.class.php';
-
-        $configuration = \ProjectConfiguration::getApplicationConfiguration($app, $kernel->getEnvironment(), $kernel->isDebug());
-        $event->getDispatcher()->dispatch('butterweed_sf1_embedder.pre_context');
-        $context = \sfContext::createInstance($configuration);
-        $eventContext = new ContextEvent($context);
-        $event->getDispatcher()->dispatch('butterweed_sf1_embedder.pre_dispatch', $eventContext);
-        $context->getController()->dispatch();
-        $event->getDispatcher()->dispatch('butterweed_sf1_embedder.post_dispatch', $eventContext);
-
-        // especially needed for response listeners such as debug bar
-        $response = $context->getResponse();
-        $event = $context->getEventDispatcher()->filter(new \sfEvent($response, 'response.filter_content'), $response->getContent());
-        $content = $event->getReturnValue();
-
-        // incase there was a readfile call
-        if ((ob_get_level() - $obLevel) && !$content) {
-            $stream = new \Symfony\Component\HttpFoundation\StreamedResponse(function () {
-                    echo ob_get_flush();
-                },
-                $response->getStatusCode(), $response->getHttpHeaders()
-            );
-        }
-
-        return new \Symfony\Component\HttpFoundation\Response(
-            $content,
-            $response->getStatusCode(), $response->getHttpHeaders()
-        );
     }
 }

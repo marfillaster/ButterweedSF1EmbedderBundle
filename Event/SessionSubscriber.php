@@ -34,12 +34,12 @@ class SessionSubscriber implements EventSubscriberInterface, ContainerAwareInter
 
     public function onPreDispatch(ContextEvent $event)
     {
-        if ($this->container->has('security_context')) {
+        $context = $this->container->get('security.context');
+        if ($context->getToken()) {
             $sfUser = $event->getContext()->getUser();
-            $user = $this->container->get('security_context')->getToken()->getUser();
-
+            $user = $context->getToken()->getUser();
             if ($sfUser instanceof \sfGuardSecurityUser && $user instanceof GuardUserInterface) {
-                if ($user->isAuthenticated()) {
+                if ($context->isGranted('IS_AUTHENTICATED_FULLY')) {
                     if ($sfUser->isAuthenticated()) {
                         if (!$user->equalsGuard($sfUser)) {
                             $sfUser->signOut();
