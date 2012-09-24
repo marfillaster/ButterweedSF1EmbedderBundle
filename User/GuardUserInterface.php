@@ -1,6 +1,6 @@
 <?php
 
-use Butterweed\SF1EmbedderBundle\User;
+namespace Butterweed\SF1EmbedderBundle\User;
 
 interface GuardUserInterface
 {
