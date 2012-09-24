@@ -30,7 +30,7 @@ composer.json and add the bundle in your AppKernel.php
     # config.yml
     butterweed_sf1_embedder:
         embbeds:
-            beis:
+            main:
                 prefix: /  # uses strpos to match againts pathinfo
                 app: frontend
                 path: "%kernel.root_dir%/../legacy"
@@ -38,7 +38,7 @@ composer.json and add the bundle in your AppKernel.php
 ## Auto signin of sfGuardUser
 
 Fos user and custom implementations are supported. Automatic signin happens
-when `GuardUserInterface` is implemented on the User model. `security_context` service is required.
+when `GuardUserInterface` is implemented on the User model. `security.context` token is required.
 
     interface GuardUserInterface
     {
