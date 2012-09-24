@@ -48,7 +48,7 @@ class LegacyFallbackAwareRouterListener extends BaseRouterListener implements Co
                     try {
                         $embedded = new Embedded($this->container);
                         $obLevel = $this->container->get('request')->headers->get('X-Php-Ob-Level') ?: 0;
-                        $sfResponse = $embedded->serve($conf['app'], $conf['path']);
+                        $sfResponse = $embedded->serve($prefix, $conf['app'], $conf['path']);
 
                         if ((ob_get_level() > $obLevel) && !$sfResponse->getContent()) {
                             $sfResponse = new \Symfony\Component\HttpFoundation\StreamedResponse(function () {

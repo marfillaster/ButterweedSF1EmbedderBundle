@@ -19,7 +19,7 @@ class Embedded
      * @throws \sfError404Exception
      * @throws \sfException
      */
-    public function serve($app, $root)
+    public function serve($prefix, $app, $root)
     {
         $container = $this->container;
         $kernel = $container->get('kernel');
@@ -33,6 +33,7 @@ class Embedded
         $configuration = \ProjectConfiguration::getApplicationConfiguration($app, $kernel->getEnvironment(), $kernel->isDebug());
         $dispatcher->dispatch('butterweed_sf1_embedder.pre_context');
         $context = \sfContext::createInstance($configuration);
+        $context->getRequest()->setRelativeUrlRoot(rtrim($prefix, '/ '));
         $eventContext = new ContextEvent($context);
         $dispatcher->dispatch('butterweed_sf1_embedder.pre_dispatch', $eventContext);
         $context->getController()->dispatch();
