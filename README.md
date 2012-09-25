@@ -42,8 +42,6 @@ composer.json and add the bundle in your AppKernel.php
                 router.default: 100
                 butterweed_sf1_embedder.router: 0
 
-
-
 ## Auto signin of sfGuardUser
 
 Fos user and custom implementations are supported. Automatic signin happens
@@ -79,24 +77,23 @@ To install plugin, copy or better symlink `butterweedEmbeddedAwarePlugin` locate
     # apps/frontend/config/factories.yml
     controller:
         class: EmbeddedAwareFrontWebController
+    request:
+        class: EmbedAwareWebRequest
 
 That's it! You may need to `./symfony cc --env=prod`.
 
 ## Gothas
 
-Assets may not be served from symfony especially when mouting it on root prefix `/`.
-You will have to symlink or copy the web dir into a subdirectory and use redirection.
+You will need to symlink the assets using the prefix as subdirectory name.
 
     # Example
     cd <project-path>/web
-    ln -s <project-path>/legacy/web legacy
+    ln -s <project-path>/legacy/web backend
 
-    # nginx conf
+For app mounted in root (/), additional rewrite is required.
+
+    # example nginx conf
     location ~ ^/(?!legacy).+\.(gif|css|js|png|jpeg|jpg)$ {
         try_files $uri /legacy$uri;
     }
-
-
-
-
 
