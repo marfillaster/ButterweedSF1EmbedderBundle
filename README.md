@@ -22,6 +22,7 @@ In order for this to work, a symfony plugin must be installed in the legacy app.
 Add a requirement for `butterweed/sf1-embedder-bundle` to your
 composer.json and add the bundle in your AppKernel.php
 
+    new Symfony\Cmf\Bundle\RoutingExtraBundle\SymfonyCmfRoutingExtraBundle(),
     new Butterweed\SF1EmbedderBundle\ButterweedSF1EmbedderBundle()
 
 
@@ -29,11 +30,19 @@ composer.json and add the bundle in your AppKernel.php
 
     # config.yml
     butterweed_sf1_embedder:
-        embbeds:
+        map:
             main:
                 prefix: /  # uses strpos to match againts pathinfo
                 app: frontend
                 path: "%kernel.root_dir%/../legacy"
+
+    symfony_cmf_routing_extra:
+        chain:
+            routers_by_id:
+                router.default: 100
+                butterweed_sf1_embedder.router: 0
+
+
 
 ## Auto signin of sfGuardUser
 
@@ -42,8 +51,14 @@ when `GuardUserInterface` is implemented on the User model. `security.context` t
 
     interface GuardUserInterface
     {
-        public function getGuardUsername();
+        /**
+         * return \sfGuardUser
+         */
+        public function getGuardUser();
 
+        /**
+         * return boolean
+         */
         public function equalsGuard(\sfGuardSecurityUser $user);
     }
 

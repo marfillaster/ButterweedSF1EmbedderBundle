@@ -5,7 +5,7 @@ namespace Butterweed\SF1EmbedderBundle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Butterweed\SF1EmbedderBundle\Event\ContextEvent;
 
-class Embedded 
+class Embedded
 {
     protected $container;
 

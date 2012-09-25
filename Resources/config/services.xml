@@ -5,20 +5,22 @@
     xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
-        <parameter key="butterweed_sf1_embedder.router_listener.class">Butterweed\SF1EmbedderBundle\EventListener\LegacyFallbackAwareRouterListener</parameter>
-        <parameter key="butterweed_sf1_embedder.session_subscriber.class">Butterweed\SF1EmbedderBundle\Event\SessionSubscriber</parameter>
+        <parameter key="butterweed_sf1_embedder.session_listener.class">Butterweed\SF1EmbedderBundle\Event\SessionListener</parameter>
+         <parameter key="butterweed_sf1_embedder.router_class">Butterweed\SF1EmbedderBundle\Routing\Router</parameter>
     </parameters>
 
     <services>
-        <service id="butterweed_sf1_embedder.router_listener"
-            class="%butterweed_sf1_embedder.router_listener.class%"
-            parent="router_listener">
+        <service id="butterweed_sf1_embedder.session_listener"
+            class="%butterweed_sf1_embedder.session_listener.class%">
             <call method="setContainer"><argument type="service" id="service_container"/></call>
-            <tag name="kernel.event_subscriber" />
-            <tag name="monolog.logger" channel="request" />
+            <tag name="kernel.event_listener" event="butterweed_sf1_embedder.pre_context" method="onPreContext" />
+            <tag name="kernel.event_listener" event="butterweed_sf1_embedder.pre_dispatch" method="onPreDispatch" />
+            <tag name="kernel.event_listener" event="butterweed_sf1_embedder.post_dispatch" method="onPostDispatch" />
         </service>
-        <service id="butterweed_sf1_embedder.session_subscriber"
-            class="%butterweed_sf1_embedder.session_subscriber.class%">
+        <service id="butterweed_sf1_embedder.router" class="%butterweed_sf1_embedder.router_class%">
+            <argument type="service" id="logger" on-invalid="ignore" />
+            <tag name="monolog.logger" channel="request" />
+            <call method="setContext"><argument type="service" id="router.request_context"/></call>
             <call method="setContainer"><argument type="service" id="service_container"/></call>
         </service>
     </services>

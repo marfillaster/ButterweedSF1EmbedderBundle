@@ -22,7 +22,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->arrayNode('embbeds')
+                ->arrayNode('map')
                     ->isRequired()
                     ->requiresAtLeastOneElement()
                     ->useAttributeAsKey('prefix')

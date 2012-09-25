@@ -6,7 +6,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
-
+use Symfony\Component\DependencyInjection\Reference;
 /**
  * This is the class that loads and manages your bundle configuration
  *
@@ -25,7 +25,7 @@ class ButterweedSF1EmbedderExtension extends Extension
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
-        $container->getDefinition('butterweed_sf1_embedder.router_listener')
-            ->addMethodCall('setEmbbeds', array($config['embbeds']));
+        $container->getDefinition('butterweed_sf1_embedder.router')
+            ->addMethodCall('setMap', array($config['map']));
     }
 }

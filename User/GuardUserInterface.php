@@ -4,7 +4,13 @@ namespace Butterweed\SF1EmbedderBundle\User;
 
 interface GuardUserInterface
 {
-    public function getGuardUsername();
+    /**
+     * return \sfGuardUser
+     */
+    public function getGuardUser();
 
+    /**
+     * return boolean
+     */
     public function equalsGuard(\sfGuardSecurityUser $user);
 }

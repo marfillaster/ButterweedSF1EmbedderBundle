@@ -1,27 +1,17 @@
 <?php
 namespace Butterweed\SF1EmbedderBundle\Event;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Butterweed\SF1EmbedderBundle\User\GuardUserInterface;
 
-class SessionSubscriber implements EventSubscriberInterface, ContainerAwareInterface
+class SessionListener implements ContainerAwareInterface
 {
     protected $container;
 
     public function setContainer(ContainerInterface $container = null)
     {
         $this->container = $container;
-    }
-
-    static public function getSubscribedEvents()
-    {
-        return array(
-            'butterweed_sf1_embedder.pre_context' => array('onPreContext', 0),
-            'butterweed_sf1_embedder.pre_dispatch' => array('onPreDispatch', 0),
-            'butterweed_sf1_embedder.post_dispatch' => array('onPostDispatch', 0),
-        );
     }
 
     public function onPreContext()
@@ -43,10 +33,10 @@ class SessionSubscriber implements EventSubscriberInterface, ContainerAwareInter
                     if ($sfUser->isAuthenticated()) {
                         if (!$user->equalsGuard($sfUser)) {
                             $sfUser->signOut();
-                            $sfUser->signIn($user->getGuardUsername());
+                            $sfUser->signIn($user->getGuardUser());
                         }
                     } else {
-                        $sfUser->signIn($user->getGuardUsername());
+                        $sfUser->signIn($user->getGuardUser());
                     }
                 } else {
                     $sfUser->signOut();
