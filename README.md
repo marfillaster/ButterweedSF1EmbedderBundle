@@ -57,7 +57,7 @@ when `GuardUserInterface` is implemented on the User model. `security.context` t
         /**
          * return boolean
          */
-        public function equalsGuard(\sfGuardSecurityUser $user);
+        public function equalsGuard($user);
     }
 
 ## Making symfony embed aware

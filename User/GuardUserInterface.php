@@ -12,5 +12,5 @@ interface GuardUserInterface
     /**
      * return boolean
      */
-    public function equalsGuard(\sfGuardSecurityUser $user);
+    public function equalsGuard($user);
 }
