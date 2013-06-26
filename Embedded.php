@@ -75,7 +75,7 @@ class Embedded
             $c = new Cookie(
                 $cookie['name'],
                 $cookie['value'],
-                in_numeric($cookie['expire']) ? (int) $cookie['expire'] : strtotime($cookie['expire']),
+                is_numeric($cookie['expire']) ? (int) $cookie['expire'] : strtotime($cookie['expire']),
                 $cookie['path'],
                 $cookie['domain'],
                 $cookie['secure'],
