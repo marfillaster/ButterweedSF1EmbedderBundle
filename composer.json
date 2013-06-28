@@ -15,7 +15,7 @@
     "require": {
         "php": ">=5.3.3",
         "symfony/framework-bundle": "~2.3",
-        "symfony-cmf/routing-extra-bundle": "*"
+        "symfony-cmf/routing-bundle": "*"
     },
     "autoload": {
         "psr-0": { "Butterweed\\SF1EmbedderBundle": "" }
