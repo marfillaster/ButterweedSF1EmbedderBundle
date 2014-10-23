@@ -22,7 +22,7 @@ In order for this to work, a symfony plugin must be installed in the legacy app.
 Add a requirement for `butterweed/sf1-embedder-bundle` to your
 composer.json and add the bundle in your AppKernel.php
 
-    new Symfony\Cmf\Bundle\RoutingExtraBundle\SymfonyCmfRoutingExtraBundle(),
+    new Symfony\Cmf\Bundle\RoutingBundle\CmfRoutingBundle(),
     new Butterweed\SF1EmbedderBundle\ButterweedSF1EmbedderBundle()
 
 
@@ -36,7 +36,7 @@ composer.json and add the bundle in your AppKernel.php
                 app: frontend
                 path: "%kernel.root_dir%/../legacy"
 
-    symfony_cmf_routing_extra:
+    cmf_routing:
         chain:
             routers_by_id:
                 router.default: 100

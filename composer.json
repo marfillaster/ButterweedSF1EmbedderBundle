@@ -14,8 +14,8 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=5.3.3",
-        "symfony/framework-bundle": "~2.1",
-        "symfony-cmf/routing-extra-bundle": "*"
+        "symfony/framework-bundle": "~2.3",
+        "symfony-cmf/routing-bundle": "~1.2"
     },
     "autoload": {
         "psr-0": { "Butterweed\\SF1EmbedderBundle": "" }
