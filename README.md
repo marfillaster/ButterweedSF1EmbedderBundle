@@ -33,6 +33,7 @@ composer.json and add the bundle in your AppKernel.php
         map:
             main:
                 prefix: /  # uses strpos to match againts pathinfo
+                hosts: ["example.com"] # optional host match
                 app: frontend
                 path: "%kernel.root_dir%/../legacy"
 
