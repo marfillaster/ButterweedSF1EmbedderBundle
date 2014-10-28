@@ -38,14 +38,13 @@ class Router implements RouterInterface, ContainerAwareInterface
         $params = array('_controller' => 'ButterweedSF1EmbedderBundle:Default:index', '_route' => 'butterweed_sf1_embedder_default_index');
         $request = $this->container->get('request');
 
-        foreach ($this->map as $prefix => $conf) {
-            if (0 === strpos($request->getPathInfo(), $prefix)) {
+        foreach ($this->map as $conf) {
+            if (0 === strpos($request->getPathInfo(), $conf['prefix']) && ($conf['hosts'] && in_array($request->getHost(), $conf['hosts']))) {
                 if (null !== $this->logger) {
                     $this->logger->info(sprintf('Matched embedded symfony (%s)', $conf['app']));
                 }
-                $conf['prefix'] = $prefix;
-
-                return array_merge($params, $conf);
+                
+                return array_merge($params, array_diff_key($conf, array('hosts'=>null)));
             }
         }
 
